@@ -12,7 +12,9 @@ public class ShowroomManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        InvokeRepeating("ChangeBackground", 3f, 4f);
+        DoAnimationSequence();
+        //DoAnimationSequence();
+        //InvokeRepeating("ChangeBackground", 3f, 4f);
     }
 
     // Update is called once per frame
@@ -23,16 +25,17 @@ public class ShowroomManager : MonoBehaviour
 
     void ChangeBackground()
     {
-        DoAnimationSequence();
-        //StartCoroutine(ChangeBackgroundCoroutine());
+
+        StartCoroutine(ChangeBackgroundCoroutine());
     }
     IEnumerator ChangeBackgroundCoroutine()
     {
+
         //DoAnimationSequence();
         //yield return new WaitForSeconds(3f);
 
         //RotateSpriteMask();
-        
+
         //yield return new WaitForSeconds(.5f);
 
         //spriteRendererTarget.sprite = backgroundList[Random.Range(0, backgroundList.Count)];
@@ -43,26 +46,42 @@ public class ShowroomManager : MonoBehaviour
     public void DoAnimationSequence()
     {
         Sequence sequence = DOTween.Sequence();
-        float totalAnimationDuration = 0;
-        totalAnimationDuration+= baseAnimationDuration;
-        sequence.Insert(totalAnimationDuration, spriteRendererTarget.DOFade(0, baseAnimationDuration*3f).From(1));
+        spriteRendererTarget.DOFade(1, 0);
+        float totalAnimationDuration = 3;
+        //totalAnimationDuration += baseAnimationDuration;
+        sequence.Insert(totalAnimationDuration, spriteRendererTarget.DOFade(0, baseAnimationDuration * 3f).From(1));
         totalAnimationDuration += baseAnimationDuration * 3f;
+        Debug.Log($"{totalAnimationDuration}");
+
         totalAnimationDuration = RotateSpriteMaskDuration(totalAnimationDuration, sequence);
-        totalAnimationDuration += baseAnimationDuration * 3f;
         sequence.InsertCallback(totalAnimationDuration, () =>
         {
             spriteRendererTarget.sprite = backgroundList[Random.Range(0, backgroundList.Count)];
         });
+
+        //totalAnimationDuration += baseAnimationDuration / .025f;
         sequence.Insert(totalAnimationDuration, spriteRendererTarget.DOFade(1, baseAnimationDuration * 3f).From(0));
-
+        totalAnimationDuration += baseAnimationDuration * 8f;
+        sequence.Insert(totalAnimationDuration, spriteRendererTarget.DOFade(0, baseAnimationDuration * 3f).From(1));
+        totalAnimationDuration += baseAnimationDuration * 3f;
+        sequence.Insert(totalAnimationDuration, Camera.main.DOFieldOfView(66, 1).From(57));
     }
-    float RotateSpriteMaskDuration(float totalAnimationDuration,Sequence sequence)
+    float RotateSpriteMaskDuration(float totalAnimationDuration, Sequence sequence)
     {
-
         for (int i = 0; i < SpriteMasks.Count; i++)
         {
+            float random = Random.Range(0f, 1000);
             float delay = Random.Range(0f, baseAnimationDuration);
-            sequence.Insert(totalAnimationDuration + delay, SpriteMasks[i].transform.DOLocalRotate(Vector3.right * 360, baseAnimationDuration*3f, RotateMode.FastBeyond360).From(Vector3.zero).SetEase(Ease.Linear));
+            float multiply = 0;
+            if (random < 500)
+            {
+                multiply = 360f;
+            }
+            else
+            {
+                multiply = -360f;
+            }
+            sequence.Insert(totalAnimationDuration + delay, SpriteMasks[i].transform.DOLocalRotate(Vector3.right * multiply, baseAnimationDuration * 3f, RotateMode.FastBeyond360).From(Vector3.zero).SetEase(Ease.Linear));
         }
         totalAnimationDuration += baseAnimationDuration * 4f;
 
@@ -77,5 +96,5 @@ public class ShowroomManager : MonoBehaviour
             SpriteMasks[i].transform.DOLocalRotate(Vector3.right * 360, 1f, RotateMode.FastBeyond360).From(Vector3.zero).SetEase(Ease.Linear);
         }
     }
-    
+
 }
